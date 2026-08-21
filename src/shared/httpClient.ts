@@ -11,15 +11,16 @@ const httpClient = axios.create({
 });
 
 // Add response interceptor to handle errors globally
-httpClient.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    toast.add({
-      type: 'error',
-      description: `HTTP Error: ${error.response?.status} - ${error.response?.data?.message || error.message}`,
-    });
-    return Promise.reject(error);
-  },
-);
+// httpClient.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     toast.add({
+//       type: 'error',
+//       title: 'Unexpected Error',
+//       description: `HTTP Error: ${error.response?.status} - ${error.response?.data?.error || error.error}`,
+//     });
+//     return Promise.reject(error);
+//   },
+// );
 
 export default httpClient;

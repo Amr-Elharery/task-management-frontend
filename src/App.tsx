@@ -1,10 +1,13 @@
-import { Routes, Route } from 'react-router';
-import Layout from './components/layout';
+import { RouterProvider } from 'react-router/dom';
+import router from './router';
+import { Toaster } from '@/components/ui/toast';
+import { AuthProvider } from './features/auth/context/authContext';
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Layout />} />
-    </Routes>
+    <AuthProvider>
+      <RouterProvider router={router} />
+      <Toaster />
+    </AuthProvider>
   );
 }
