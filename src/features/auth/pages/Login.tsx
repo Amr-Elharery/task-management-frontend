@@ -26,7 +26,7 @@ import { loginSchema, type LoginFormData } from '../schemas/authSchema';
 import authService from '../services/authService';
 import { toast } from '@/components/ui/toast';
 import { useAuth } from '../hooks/useAuth';
-import axios, { isAxiosError } from 'axios';
+import axios from 'axios';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);

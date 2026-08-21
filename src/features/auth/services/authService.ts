@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { toast } from '@/components/ui/toast';
 import httpClient from '@/shared/httpClient';
 import type { LoginResponse, RegisterResponse } from '../types/types';
 

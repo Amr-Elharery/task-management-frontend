@@ -1,6 +1,5 @@
 import axios from 'axios';
 import config from '@/config/config';
-import { toast } from '@/components/ui/toast';
 
 const httpClient = axios.create({
   baseURL: config.API_BASE_URL,
