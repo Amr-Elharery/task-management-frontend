@@ -23,18 +23,21 @@ import {
 } from '@/components/ui/card';
 
 import { loginSchema, type LoginFormData } from '../schemas/authSchema';
-import authService from '../services/authService';
+
+import { useLogin } from '../hooks/useLogin';
+
 import { toast } from '@/components/ui/toast';
-import { useAuth } from '../hooks/useAuth';
-import axios from 'axios';
+// import { useAuth } from '../hooks/useAuth';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const { setUser } = useAuth();
+  // const { isAuthenticated } = useAuth();
+  const { login, isLoading, error } = useLogin();
   const navigate = useNavigate();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+
     defaultValues: {
       email: '',
       password: '',
@@ -43,44 +46,37 @@ export default function Login() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const response = await authService.login(data.email, data.password);
-      setUser(response.user);
+      const response = await login(data.email, data.password);
 
       toast.add({
         title: 'Login successful',
-        description: 'You have successfully logged in.',
+        description: response.message || 'You have successfully logged in.',
         type: 'success',
       });
 
       navigate('/');
-    } catch (error) {
-      let message;
-      if (axios.isAxiosError(error)) {
-        message =
-          error.response?.data?.error || 'An error occurred during login.';
-      }
+    } catch {
       toast.add({
         title: 'Login failed',
-        description: message || 'An error occurred during login.',
+        description: error || 'An error occurred during login.',
         type: 'error',
       });
     }
   };
 
   return (
-    <Card className="border-0 shadow-none sm:border sm:shadow-sm">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
+    <Card className="w-full border-0 shadow-none sm:max-w-md sm:border sm:shadow-sm">
+      <CardHeader className="space-y-1 px-1 sm:px-6">
+        <CardTitle className="text-2xl sm:text-3xl">Welcome back</CardTitle>
 
-        <CardDescription>
+        <CardDescription className="text-sm sm:text-base">
           Enter your credentials to access your account.
         </CardDescription>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="px-1 sm:px-6">
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup>
-            {/* Email */}
+          <FieldGroup className="gap-5">
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
 
@@ -97,7 +93,6 @@ export default function Login() {
               )}
             </Field>
 
-            {/* Password */}
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
 
@@ -114,7 +109,7 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground transition-colors hover:text-foreground"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -124,6 +119,7 @@ export default function Login() {
                   )}
                 </button>
               </div>
+
               {form.formState.errors.password && (
                 <FieldError>
                   {form.formState.errors.password.message}
@@ -131,16 +127,15 @@ export default function Login() {
               )}
             </Field>
 
-            {/* Submit */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting ? 'Logging in...' : 'Login'}
+            <Button type="submit" className="mt-1 w-full" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
             </Button>
           </FieldGroup>
         </form>
+
+        {error && (
+          <p className="mt-3 text-center text-sm text-destructive">{error}</p>
+        )}
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Don't have an account?{' '}

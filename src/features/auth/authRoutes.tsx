@@ -2,10 +2,15 @@ import { redirect } from 'react-router';
 import AuthLayout from './components/authLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import GuestGuard from './guards/guestGuard';
 
 const authRoutes = {
   path: '/auth',
-  element: <AuthLayout />,
+  element: (
+    <GuestGuard>
+      <AuthLayout />
+    </GuestGuard>
+  ),
   children: [
     {
       path: '',

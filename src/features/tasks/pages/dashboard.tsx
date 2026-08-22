@@ -1,14 +1,17 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import TaskTable from '../components/TaskTable';
 import DashboardHeader from '../components/DashboardHeader';
 import EditTaskDialog from '../components/EditTaskDialog';
 
-import type { TaskWithId } from '../types';
+import type { TaskQuery, TaskWithId } from '../types';
 
 import { useGetTasks } from '../hooks/useGetTasks';
 import DeleteTaskDialog from '../components/DeleteTaskDialog';
 import ViewTaskDialog from '../components/ViewTaskDialog';
+import type { TaskStatus, TaskPriority } from '../components/TaskFilters';
+import TaskToolbar from '../components/TaskToolbar';
+import TaskPagination from '../components/TaskPagination';
 
 export default function Dashboard() {
   const [selectedTask, setSelectedTask] = useState<TaskWithId | null>(null);
@@ -18,9 +21,48 @@ export default function Dashboard() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  const [query, setQuery] = useState<TaskQuery>({
+    page: 1,
+    limit: 10,
+  });
+  const [search, setSearch] = useState('');
   // My hooks
-  const { data, isLoading, error, refetch } = useGetTasks();
+  const { data, isLoading, error, refetch } = useGetTasks(query);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQuery((prev) => ({
+        ...prev,
+        search: search || undefined,
+        page: 1,
+      }));
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  //Filtering and searching
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+  };
+
+  const handleStatusChange = (status: TaskStatus) => {
+    setQuery((prev) => ({
+      ...prev,
+      status: status === 'all' ? undefined : status,
+      page: 1,
+    }));
+  };
+
+  const handlePriorityChange = (priority: TaskPriority) => {
+    setQuery((prev) => ({
+      ...prev,
+      priority: priority === 'all' ? undefined : priority,
+      page: 1,
+    }));
+  };
+
+  // Actions
   const handleView = (task: TaskWithId) => {
     setSelectedTask(task);
     setIsViewDialogOpen(true);
@@ -52,13 +94,35 @@ export default function Dashboard() {
     <div className="container mx-auto mt-6 space-y-6 px-6 lg:mt-10 lg:px-8">
       <DashboardHeader />
 
+      <TaskToolbar
+        search={search || ''}
+        status={query.status || 'all'}
+        priority={query.priority || 'all'}
+        onSearchChange={handleSearchChange}
+        onStatusChange={handleStatusChange}
+        onPriorityChange={handlePriorityChange}
+      />
+
       <TaskTable
-        tasks={data?.tasks || []}
+        tasks={data?.data?.tasks || []}
         isLoading={isLoading}
         error={error}
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
+      />
+
+      <TaskPagination
+        page={data?.data?.pagination.page || 1}
+        totalPages={data?.data?.pagination.totalPages || 1}
+        limit={data?.data?.pagination.limit || 10}
+        total={data?.data?.pagination.total || 0}
+        onPageChange={(page) => {
+          setQuery((prev) => ({
+            ...prev,
+            page,
+          }));
+        }}
       />
 
       <ViewTaskDialog

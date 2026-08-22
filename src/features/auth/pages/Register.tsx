@@ -23,17 +23,22 @@ import {
 } from '@/components/ui/card';
 
 import { registerSchema, type RegisterFormData } from '../schemas/authSchema';
-import authService from '../services/authService';
+
+import { useRegister } from '../hooks/useRegister';
 import { toast } from '@/components/ui/toast';
-import axios from 'axios';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
 
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const navigate = useNavigate();
+
+  const { register, isLoading } = useRegister();
+
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
+
     defaultValues: {
       name: '',
       email: '',
@@ -44,8 +49,10 @@ export default function Register() {
 
   const onSubmit = async (data: RegisterFormData) => {
     const { confirmPassword, ...payload } = data;
+
     try {
-      await authService.register(payload.name, payload.email, payload.password);
+      await register(payload.name, payload.email, payload.password);
+
       toast.add({
         title: 'Registration successful',
         description: 'You have successfully registered.',
@@ -54,22 +61,19 @@ export default function Register() {
 
       navigate('/auth/login');
     } catch (error) {
-      let message;
-      if (axios.isAxiosError(error)) {
-        message =
-          error.response?.data?.error ||
-          'An error occurred during registration.';
-      }
       toast.add({
         title: 'Register failed',
-        description: message || 'An error occurred during registration.',
+        description:
+          error instanceof Error
+            ? error.message
+            : 'An error occurred during registration.',
         type: 'error',
       });
     }
   };
 
   return (
-    <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+    <Card className="w-full border-0 shadow-none sm:max-w-md sm:border sm:shadow-sm">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl">Create an account</CardTitle>
 
@@ -77,7 +81,6 @@ export default function Register() {
           Enter your information to get started.
         </CardDescription>
       </CardHeader>
-
       <CardContent>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FieldGroup>
@@ -90,6 +93,7 @@ export default function Register() {
                 type="text"
                 placeholder="Amr Elharery"
                 autoComplete="name"
+                disabled={isLoading}
                 {...form.register('name')}
               />
 
@@ -107,6 +111,7 @@ export default function Register() {
                 type="email"
                 placeholder="name@example.com"
                 autoComplete="email"
+                disabled={isLoading}
                 {...form.register('email')}
               />
 
@@ -124,15 +129,17 @@ export default function Register() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="********"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="pr-10"
+                  disabled={isLoading}
                   {...form.register('password')}
                 />
 
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={() => setShowPassword((prev) => !prev)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
@@ -161,15 +168,17 @@ export default function Register() {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="********"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="pr-10"
+                  disabled={isLoading}
                   {...form.register('confirmPassword')}
                 />
 
                 <button
                   type="button"
+                  disabled={isLoading}
                   onClick={() => setShowConfirmPassword((prev) => !prev)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground disabled:pointer-events-none disabled:opacity-50"
                   aria-label={
                     showConfirmPassword ? 'Hide password' : 'Show password'
                   }
@@ -190,14 +199,8 @@ export default function Register() {
             </Field>
 
             {/* Submit */}
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              {form.formState.isSubmitting
-                ? 'Creating account...'
-                : 'Create account'}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
           </FieldGroup>
         </form>

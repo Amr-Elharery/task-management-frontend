@@ -1,61 +1,40 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import tasksService from '../services/tasksService';
-
 import type { GetTasksResponse, TaskQuery } from '../types';
-import axios from 'axios';
-
-interface UseGetTasksParams {
-  isSearch?: boolean;
-  search?: string;
-  status?: TaskQuery['status'];
-  priority?: TaskQuery['priority'];
-}
 
 interface UseGetTasksResult {
   data: GetTasksResponse | null;
   isLoading: boolean;
   error: string;
-  refetch: () => Promise<void>;
+  refetch: () => void;
 }
 
-export function useGetTasks({
-  isSearch = false,
-  search = '',
-  status,
-  priority,
-}: UseGetTasksParams = {}): UseGetTasksResult {
+export function useGetTasks(query: TaskQuery = {}): UseGetTasksResult {
   const [data, setData] = useState<GetTasksResponse | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
+
   const [error, setError] = useState('');
 
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     try {
       setIsLoading(true);
       setError('');
 
-      const response = isSearch
-        ? await tasksService.searchTasksByTitle(search.trim())
-        : await tasksService.getTasks({
-            status,
-            priority,
-          });
+      const response = await tasksService.getTasks(query);
 
       setData(response);
     } catch (error) {
-      let errorMessage: string = 'Failed to fetch tasks.';
-      if (axios.isAxiosError(error) && error.response) {
-        errorMessage = error.response.data.message || errorMessage;
-      }
-      setError(errorMessage);
+      setError('Failed to fetch tasks.');
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [query.page, query.limit, query.search, query.status, query.priority]);
 
   useEffect(() => {
     fetchTasks();
-  }, [isSearch, search, status, priority]);
+  }, [fetchTasks]);
 
   return {
     data,

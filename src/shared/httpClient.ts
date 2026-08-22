@@ -9,6 +9,20 @@ const httpClient = axios.create({
   },
 });
 
+// Request interceptor to add authorization token to headers
+httpClient.interceptors.request.use(
+  (request) => {
+    const token = localStorage.getItem('task-manager-token');
+    if (token) {
+      request.headers['Authorization'] = `Bearer ${token}`;
+    }
+    return request;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
+
 // Add response interceptor to handle errors globally
 // httpClient.interceptors.response.use(
 //   (response) => response,
