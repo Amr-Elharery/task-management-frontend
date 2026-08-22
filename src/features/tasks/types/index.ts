@@ -26,7 +26,7 @@ export interface GetTasksResponse {
       page: number;
       limit: number;
       totalPages: number;
-      totalTasks: number;
+      total: number;
     };
   };
 }

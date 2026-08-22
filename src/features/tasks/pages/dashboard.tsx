@@ -11,6 +11,7 @@ import DeleteTaskDialog from '../components/DeleteTaskDialog';
 import ViewTaskDialog from '../components/ViewTaskDialog';
 import type { TaskStatus, TaskPriority } from '../components/TaskFilters';
 import TaskToolbar from '../components/TaskToolbar';
+import TaskPagination from '../components/TaskPagination';
 
 export default function Dashboard() {
   const [selectedTask, setSelectedTask] = useState<TaskWithId | null>(null);
@@ -40,12 +41,6 @@ export default function Dashboard() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Actions
-  const handleView = (task: TaskWithId) => {
-    setSelectedTask(task);
-    setIsViewDialogOpen(true);
-  };
-
   //Filtering and searching
   const handleSearchChange = (value: string) => {
     setSearch(value);
@@ -65,6 +60,12 @@ export default function Dashboard() {
       priority: priority === 'all' ? undefined : priority,
       page: 1,
     }));
+  };
+
+  // Actions
+  const handleView = (task: TaskWithId) => {
+    setSelectedTask(task);
+    setIsViewDialogOpen(true);
   };
 
   const handleEdit = (task: TaskWithId) => {
@@ -109,6 +110,19 @@ export default function Dashboard() {
         onView={handleView}
         onEdit={handleEdit}
         onDelete={handleDelete}
+      />
+
+      <TaskPagination
+        page={data?.data?.pagination.page || 1}
+        totalPages={data?.data?.pagination.totalPages || 1}
+        limit={data?.data?.pagination.limit || 10}
+        total={data?.data?.pagination.total || 0}
+        onPageChange={(page) => {
+          setQuery((prev) => ({
+            ...prev,
+            page,
+          }));
+        }}
       />
 
       <ViewTaskDialog
