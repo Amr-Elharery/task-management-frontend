@@ -8,7 +8,7 @@ export default function Header() {
 
   return (
     <header className="border-b bg-background/80 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6 lg:px-8">
+      <div className="mx-auto flex h-16 items-center justify-between px-6 lg:px-8">
         <Link
           to="/home"
           className="text-xl font-bold tracking-tight text-foreground"
