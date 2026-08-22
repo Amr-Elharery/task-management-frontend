@@ -20,12 +20,21 @@ export interface AddTaskResponse {
 
 export interface GetTasksResponse {
   message: string;
-  tasks: TaskWithId[];
+  data: {
+    tasks: TaskWithId[];
+    pagination: {
+      page: number;
+      limit: number;
+      totalPages: number;
+      totalTasks: number;
+    };
+  };
 }
 
 export interface GetTaskResponse {
   message: string;
   task: TaskWithId;
+
 }
 
 export interface UpdateTaskResponse {
@@ -38,6 +47,9 @@ export interface DeleteTaskResponse {
 }
 
 export interface TaskQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
   status?: (typeof STATUSES)[number];
   priority?: (typeof PRIORITIES)[number];
 }

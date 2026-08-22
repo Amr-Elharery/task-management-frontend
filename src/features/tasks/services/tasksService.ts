@@ -13,26 +13,32 @@ class TasksService {
     const response = await httpClient.post('/tasks', task);
     return response.data;
   }
-  async getTasks(query: TaskQuery): Promise<GetTasksResponse> {
-    if (query.status || query.priority) {
-      const queryParams = new URLSearchParams();
-      if (query.status) {
-        queryParams.append('status', query.status);
-      }
-      if (query.priority) {
-        queryParams.append('priority', query.priority);
-      }
-      const response = await httpClient.get(`/tasks?${queryParams.toString()}`);
-      return response.data;
-    }
-    const response = await httpClient.get('/tasks');
-    return response.data;
-  }
 
-  async searchTasksByTitle(title: string): Promise<GetTasksResponse> {
-    const response = await httpClient.get(
-      `/tasks/search?title=${encodeURIComponent(title)}`,
-    );
+  async getTasks(query: TaskQuery = {}): Promise<GetTasksResponse> {
+    const params = new URLSearchParams();
+
+    if (query.page) {
+      params.append('page', query.page.toString());
+    }
+
+    if (query.limit) {
+      params.append('limit', query.limit.toString());
+    }
+
+    if (query.search) {
+      params.append('search', query.search);
+    }
+
+    if (query.status) {
+      params.append('status', query.status);
+    }
+
+    if (query.priority) {
+      params.append('priority', query.priority);
+    }
+
+    const response = await httpClient.get(`/tasks?${params.toString()}`);
+
     return response.data;
   }
 
