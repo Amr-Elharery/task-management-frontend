@@ -25,6 +25,7 @@ import {
 import { registerSchema, type RegisterFormData } from '../schemas/authSchema';
 import authService from '../services/authService';
 import { toast } from '@/components/ui/toast';
+import axios from 'axios';
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,18 +44,27 @@ export default function Register() {
 
   const onSubmit = async (data: RegisterFormData) => {
     const { confirmPassword, ...payload } = data;
-    const response = await authService.register(
-      payload.name,
-      payload.email,
-      payload.password,
-    );
-    if (response) {
+    try {
+      await authService.register(payload.name, payload.email, payload.password);
       toast.add({
         title: 'Registration successful',
         description: 'You have successfully registered.',
         type: 'success',
       });
+
       navigate('/auth/login');
+    } catch (error) {
+      let message;
+      if (axios.isAxiosError(error)) {
+        message =
+          error.response?.data?.error ||
+          'An error occurred during registration.';
+      }
+      toast.add({
+        title: 'Register failed',
+        description: message || 'An error occurred during registration.',
+        type: 'error',
+      });
     }
   };
 
