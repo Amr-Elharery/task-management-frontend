@@ -2,9 +2,11 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import AuthButtons from './components/authButtons';
 import { buttonVariants } from '../ui/button';
 import { Link } from 'react-router';
+import { useLogout } from '@/features/auth/hooks/useLogout';
 
 export default function Header() {
-  const { isAuthenticated, logout, user, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const { logout } = useLogout();
 
   return (
     <header className="border-b bg-background/80 backdrop-blur">
