@@ -1,6 +1,6 @@
 import { TableCell, TableRow } from '@/components/ui/table';
 
-import { type Task, type TaskWithId } from '../types';
+import { type TaskWithId } from '../types';
 
 import TaskStatusBadge from './TaskStatusBadge';
 import TaskPriorityBadge from './TaskPriorityBadge';
