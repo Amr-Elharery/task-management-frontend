@@ -5,7 +5,6 @@ import type {
   GetTasksResponse,
   Task,
   TaskQuery,
-  TaskWithId,
   UpdateTaskResponse,
 } from '../types';
 
